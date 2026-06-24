@@ -1,0 +1,854 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Contact Book</title>
+<style>
+  :root {
+    color-scheme: light;
+    --orange: #e8860a;
+    --orange-btn: #d97706;
+    --orange-hover: #b45309;
+    --text: #111827;
+    --text-secondary: #6b7280;
+    --text-muted: #9ca3af;
+    --border: #e5e7eb;
+    --bg: #f9fafb;
+    --white: #fff;
+    --radius: 6px;
+  }
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Inter', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    font-size: 13px;
+    min-height: 100vh;
+  }
+
+  /* ── Top bar ── */
+  .topbar {
+    background: var(--white);
+    border-bottom: 1px solid var(--border);
+    padding: 0 20px;
+  }
+  .topbar-inner {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    height: 44px;
+  }
+  .brand-dot {
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    background: var(--orange);
+    flex-shrink: 0;
+  }
+  .brand-name {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--text-secondary);
+    letter-spacing: .04em;
+    text-transform: uppercase;
+  }
+  .breadcrumb-sep { color: var(--text-muted); font-size: 14px; }
+  .page-title {
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--text);
+  }
+  .topbar-right {
+    margin-left: auto;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .sync-info { font-size: 11px; color: var(--text-muted); }
+  .team-btn {
+    display: flex; align-items: center; gap: 5px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 4px 10px;
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--text-secondary);
+    cursor: pointer;
+    background: var(--white);
+  }
+
+  /* ── Tab nav ── */
+  .tabnav {
+    background: var(--white);
+    border-bottom: 1px solid var(--border);
+    padding: 0 20px;
+    display: flex;
+    gap: 0;
+  }
+  .tab {
+    padding: 10px 14px;
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--text-secondary);
+    cursor: pointer;
+    border-bottom: 2px solid transparent;
+    white-space: nowrap;
+    transition: color .12s, border-color .12s;
+    user-select: none;
+  }
+  .tab:hover { color: var(--text); }
+  .tab.active {
+    color: var(--text);
+    border-bottom-color: var(--orange);
+    font-weight: 600;
+  }
+  .tab-count {
+    display: inline-block;
+    background: #f3f4f6;
+    border-radius: 20px;
+    padding: 1px 7px;
+    font-size: 11px;
+    margin-left: 4px;
+    color: var(--text-secondary);
+  }
+  .tab.active .tab-count { background: #fef3c7; color: var(--orange); }
+
+  /* ── Ask bar ── */
+  .askbar {
+    background: var(--white);
+    border-bottom: 1px solid var(--border);
+    padding: 10px 20px;
+    display: flex;
+    gap: 8px;
+    align-items: center;
+  }
+  .askbar input {
+    flex: 1;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 8px 14px;
+    font-size: 13px;
+    color: var(--text);
+    background: var(--white);
+    outline: none;
+    font-family: inherit;
+    transition: border-color .12s;
+  }
+  .askbar input::placeholder { color: var(--text-muted); }
+  .askbar input:focus { border-color: var(--orange); }
+  .ask-btn {
+    background: var(--orange-btn);
+    color: #fff;
+    border: none;
+    border-radius: var(--radius);
+    padding: 8px 18px;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    font-family: inherit;
+    transition: background .12s;
+  }
+  .ask-btn:hover { background: var(--orange-hover); }
+  .clear-btn {
+    background: none;
+    border: none;
+    font-size: 13px;
+    color: var(--text-secondary);
+    cursor: pointer;
+    font-family: inherit;
+    padding: 8px 6px;
+  }
+  .clear-btn:hover { color: var(--text); }
+
+  /* ── Stats cards ── */
+  .stats {
+    display: flex;
+    gap: 0;
+    background: var(--white);
+    border-bottom: 1px solid var(--border);
+    padding: 0 20px;
+    overflow-x: auto;
+  }
+  .stat-card {
+    flex: 1;
+    min-width: 120px;
+    padding: 16px 18px;
+    border-right: 1px solid var(--border);
+  }
+  .stat-card:last-child { border-right: none; }
+  .stat-label {
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: .08em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    margin-bottom: 4px;
+  }
+  .stat-value {
+    font-size: 26px;
+    font-weight: 700;
+    color: var(--text);
+    line-height: 1;
+  }
+  .stat-sub {
+    font-size: 11px;
+    color: var(--text-muted);
+    margin-top: 3px;
+  }
+
+  /* ── Table area ── */
+  .table-header {
+    display: flex;
+    align-items: center;
+    padding: 12px 20px;
+    gap: 10px;
+  }
+  .table-count { font-size: 13px; color: var(--text-secondary); }
+  .add-btn {
+    margin-left: auto;
+    background: var(--orange-btn);
+    color: #fff;
+    border: none;
+    border-radius: var(--radius);
+    padding: 8px 16px;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    font-family: inherit;
+    transition: background .12s;
+  }
+  .add-btn:hover { background: var(--orange-hover); }
+
+  .table-wrap { padding: 0 20px 32px; overflow-x: auto; }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    background: var(--white);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    overflow: hidden;
+    font-size: 13px;
+  }
+  thead { background: var(--white); }
+  th {
+    text-align: left;
+    padding: 10px 14px;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: .06em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    border-bottom: 1px solid var(--border);
+    white-space: nowrap;
+    cursor: pointer;
+    user-select: none;
+  }
+  th:hover { color: var(--text); }
+  td {
+    padding: 11px 14px;
+    border-bottom: 1px solid var(--border);
+    vertical-align: middle;
+  }
+  tr:last-child td { border-bottom: none; }
+  tr:hover td { background: #fafafa; }
+
+  /* ── Cell styles ── */
+  .cell-name { font-weight: 600; color: var(--text); font-size: 13px; }
+  .cell-sub { font-size: 11px; color: var(--text-muted); margin-top: 1px; }
+  .cell-contact a {
+    display: block;
+    color: var(--orange-btn);
+    text-decoration: none;
+    font-size: 12px;
+    line-height: 1.6;
+  }
+  .cell-contact a:hover { text-decoration: underline; }
+
+  /* Company pill (like city badges) */
+  .company-pill {
+    display: inline-block;
+    background: #eff6ff;
+    color: #1d4ed8;
+    border-radius: 4px;
+    padding: 2px 8px;
+    font-size: 11px;
+    font-weight: 600;
+    white-space: nowrap;
+  }
+
+  /* Stage badges */
+  .stage {
+    display: inline-block;
+    border-radius: 4px;
+    padding: 3px 9px;
+    font-size: 11px;
+    font-weight: 600;
+    white-space: nowrap;
+    border: 1px solid transparent;
+  }
+  .stage-new-lead      { background: #fef9c3; color: #854d0e; border-color: #fde68a; }
+  .stage-qual-lead     { background: #ffedd5; color: #9a3412; border-color: #fed7aa; }
+  .stage-met          { background: #dbeafe; color: #1e40af; border-color: #bfdbfe; }
+  .stage-scheduled    { background: #dcfce7; color: #166534; border-color: #bbf7d0; }
+  .stage-partner      { background: #ede9fe; color: #5b21b6; border-color: #ddd6fe; }
+  .stage-other        { background: #f3f4f6; color: #374151; border-color: #e5e7eb; }
+
+  /* Confidence-style status text */
+  .conf-done        { color: #16a34a; font-weight: 700; letter-spacing: .04em; font-size: 12px; }
+  .conf-very-high   { color: #15803d; font-weight: 700; font-size: 12px; }
+  .conf-high        { color: #ca8a04; font-weight: 600; font-size: 12px; }
+  .conf-medium      { color: #9a3412; font-weight: 600; font-size: 12px; }
+  .conf-low         { color: #6b7280; font-weight: 500; font-size: 12px; }
+
+  .cell-notes {
+    color: var(--text-secondary);
+    font-size: 12px;
+    max-width: 190px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    font-style: italic;
+  }
+  .cell-date { color: var(--text-secondary); font-size: 12px; white-space: nowrap; }
+  .cell-muted { color: var(--text-muted); }
+
+  /* Action icons */
+  .action-row { display: flex; gap: 4px; }
+  .icon-btn {
+    background: none; border: none; cursor: pointer;
+    color: var(--text-muted);
+    font-size: 13px;
+    padding: 3px 5px;
+    border-radius: 4px;
+    transition: background .1s, color .1s;
+  }
+  .icon-btn:hover { background: #f3f4f6; color: var(--text); }
+  .add-doc-link {
+    color: var(--text-muted);
+    font-size: 12px;
+    cursor: pointer;
+    white-space: nowrap;
+  }
+  .add-doc-link:hover { color: var(--orange-btn); }
+
+  /* ── Empty ── */
+  .empty {
+    text-align: center;
+    padding: 60px 24px;
+    color: var(--text-muted);
+  }
+  .empty-icon { font-size: 40px; margin-bottom: 12px; }
+  .empty p { font-size: 13px; margin-bottom: 16px; }
+
+  /* ── Modal overlay ── */
+  .overlay {
+    display: none;
+    position: fixed; inset: 0;
+    background: rgba(0,0,0,.3);
+    z-index: 200;
+    align-items: center;
+    justify-content: center;
+  }
+  .overlay.open { display: flex; }
+  .modal {
+    background: var(--white);
+    border-radius: 10px;
+    padding: 24px;
+    width: 100%;
+    max-width: 500px;
+    max-height: 90vh;
+    overflow-y: auto;
+    box-shadow: 0 20px 60px rgba(0,0,0,.18);
+    animation: pop .16s ease;
+  }
+  @keyframes pop {
+    from { transform: scale(.97); opacity: 0; }
+    to   { transform: scale(1);   opacity: 1; }
+  }
+  .modal h2 { font-size: 16px; font-weight: 700; margin-bottom: 18px; color: var(--text); }
+  .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  .form-group { display: flex; flex-direction: column; gap: 4px; }
+  .form-group.full { grid-column: 1 / -1; }
+  label { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .05em; color: var(--text-muted); }
+  input[type="text"],
+  input[type="email"],
+  input[type="tel"],
+  input[type="url"],
+  input[type="date"],
+  select.form-sel,
+  textarea.form-area {
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 7px 10px;
+    font-size: 13px;
+    color: var(--text);
+    background: var(--white);
+    outline: none;
+    font-family: inherit;
+    transition: border-color .12s;
+  }
+  input:focus, select.form-sel:focus, textarea.form-area:focus { border-color: var(--orange); }
+  textarea.form-area { resize: vertical; min-height: 64px; }
+  .modal-footer {
+    display: flex;
+    justify-content: flex-end;
+    gap: 8px;
+    margin-top: 18px;
+    padding-top: 14px;
+    border-top: 1px solid var(--border);
+  }
+  .btn-cancel {
+    background: none;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 7px 14px;
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    font-family: inherit;
+    color: var(--text-secondary);
+  }
+  .btn-cancel:hover { background: #f3f4f6; }
+  .btn-save {
+    background: var(--orange-btn);
+    color: #fff;
+    border: none;
+    border-radius: var(--radius);
+    padding: 7px 18px;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    font-family: inherit;
+    transition: background .12s;
+  }
+  .btn-save:hover { background: var(--orange-hover); }
+  .btn-del {
+    background: #dc2626;
+    color: #fff;
+    border: none;
+    border-radius: var(--radius);
+    padding: 7px 18px;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    font-family: inherit;
+  }
+  .btn-del:hover { background: #b91c1c; }
+
+  /* Confirm modal */
+  .confirm-modal { max-width: 340px; text-align: center; }
+  .confirm-modal p { color: var(--text-secondary); font-size: 13px; margin-bottom: 18px; line-height: 1.5; }
+  .confirm-btns { display: flex; justify-content: center; gap: 10px; }
+</style>
+</head>
+<body>
+
+<!-- Top bar -->
+<div class="topbar">
+  <div class="topbar-inner">
+    <div class="brand-dot"></div>
+    <span class="brand-name">Team</span>
+    <span class="breadcrumb-sep">›</span>
+    <span class="page-title">Contact Book</span>
+    <div class="topbar-right">
+      <span class="sync-info" id="syncInfo">—</span>
+      <div class="team-btn">👥 Team</div>
+    </div>
+  </div>
+</div>
+
+<!-- Tab nav -->
+<div class="tabnav" id="tabnav">
+  <div class="tab active" data-tab="all">All <span class="tab-count" id="tab-all">0</span></div>
+  <div class="tab" data-tab="New Lead">New Leads <span class="tab-count" id="tab-new-lead">0</span></div>
+  <div class="tab" data-tab="Qualified Lead">Qualified <span class="tab-count" id="tab-qual-lead">0</span></div>
+  <div class="tab" data-tab="Met">Met <span class="tab-count" id="tab-met">0</span></div>
+  <div class="tab" data-tab="Meeting Scheduled">Scheduled <span class="tab-count" id="tab-sched">0</span></div>
+  <div class="tab" data-tab="Partner">Partners <span class="tab-count" id="tab-partner">0</span></div>
+</div>
+
+<!-- Ask bar -->
+<div class="askbar">
+  <input type="text" id="searchInput" placeholder='Search — e.g. "Dubai contacts" · "Partners in fintech" · "Met last month"' oninput="render()" />
+  <button class="ask-btn">Search</button>
+  <button class="clear-btn" onclick="clearSearch()">Clear</button>
+</div>
+
+<!-- Stats -->
+<div class="stats" id="statsRow">
+  <div class="stat-card">
+    <div class="stat-label">Total Contacts</div>
+    <div class="stat-value" id="stat-total">0</div>
+    <div class="stat-sub" id="stat-sub">—</div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-label">New Leads</div>
+    <div class="stat-value" id="stat-leads">0</div>
+    <div class="stat-sub" id="stat-leads-sub">in pipeline</div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-label">Met</div>
+    <div class="stat-value" id="stat-met">0</div>
+    <div class="stat-sub">connected</div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-label">Scheduled</div>
+    <div class="stat-value" id="stat-sched">0</div>
+    <div class="stat-sub">upcoming meetings</div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-label">Partners</div>
+    <div class="stat-value" id="stat-partners">0</div>
+    <div class="stat-sub">active relationships</div>
+  </div>
+</div>
+
+<!-- Table header row -->
+<div class="table-header">
+  <span class="table-count" id="tableCount">0 contacts</span>
+  <button class="add-btn" onclick="openAdd()">+ Add Contact</button>
+</div>
+
+<!-- Table -->
+<div class="table-wrap">
+  <table id="mainTable">
+    <thead>
+      <tr>
+        <th onclick="sortBy('name')">Contact <span id="sort-name"></span></th>
+        <th onclick="sortBy('company')">Company <span id="sort-company"></span></th>
+        <th>Contact Info</th>
+        <th onclick="sortBy('status')">Stage <span id="sort-status"></span></th>
+        <th onclick="sortBy('lastMeeting')">Last Meeting <span id="sort-lastMeeting"></span></th>
+        <th>Notes</th>
+        <th></th>
+      </tr>
+    </thead>
+    <tbody id="tbody"></tbody>
+  </table>
+  <div id="emptyState" class="empty" style="display:none">
+    <div class="empty-icon">📭</div>
+    <p id="emptyMsg">No contacts yet.</p>
+    <button class="add-btn" onclick="openAdd()">+ Add Contact</button>
+  </div>
+</div>
+
+<!-- Add/Edit Modal -->
+<div class="overlay" id="modalOverlay" onclick="overlayClick(event,'modalOverlay')">
+  <div class="modal">
+    <h2 id="modalTitle">Add Contact</h2>
+    <form id="contactForm" onsubmit="saveContact(event)">
+      <div class="form-grid">
+        <div class="form-group">
+          <label for="f-name">Full Name *</label>
+          <input type="text" id="f-name" required placeholder="Jane Smith" />
+        </div>
+        <div class="form-group">
+          <label for="f-company">Company *</label>
+          <input type="text" id="f-company" required placeholder="Acme Corp" />
+        </div>
+        <div class="form-group">
+          <label for="f-email">Email</label>
+          <input type="email" id="f-email" placeholder="jane@example.com" />
+        </div>
+        <div class="form-group">
+          <label for="f-phone">Phone</label>
+          <input type="tel" id="f-phone" placeholder="+1 555 000 0000" />
+        </div>
+        <div class="form-group full">
+          <label for="f-linkedin">LinkedIn URL</label>
+          <input type="text" id="f-linkedin" placeholder="https://linkedin.com/in/…" />
+        </div>
+        <div class="form-group">
+          <label for="f-status">Stage</label>
+          <select class="form-sel" id="f-status">
+            <option value="New Lead">New Lead</option>
+            <option value="Qualified Lead">Qualified Lead</option>
+            <option value="Met">Met</option>
+            <option value="Meeting Scheduled">Meeting Scheduled</option>
+            <option value="Partner">Partner</option>
+            <option value="Other">Other</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label for="f-lastMeeting">Last Meeting</label>
+          <input type="date" id="f-lastMeeting" />
+        </div>
+        <div class="form-group full">
+          <label for="f-notes">Notes</label>
+          <textarea class="form-area" id="f-notes" placeholder="Context, follow-ups, next steps…"></textarea>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn-cancel" onclick="closeModal('modalOverlay')">Cancel</button>
+        <button type="submit" class="btn-save">Save Contact</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- Confirm Delete Modal -->
+<div class="overlay" id="confirmOverlay" onclick="overlayClick(event,'confirmOverlay')">
+  <div class="modal confirm-modal">
+    <h2>Delete Contact?</h2>
+    <p>This will permanently remove this contact and cannot be undone.</p>
+    <div class="confirm-btns">
+      <button class="btn-cancel" onclick="closeModal('confirmOverlay')">Cancel</button>
+      <button class="btn-del" onclick="confirmDelete()">Delete</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const KEY = 'team_contacts_v2';
+let contacts = [];
+let editingId = null;
+let deleteId = null;
+let activeTab = 'all';
+let sortCol = 'name';
+let sortAsc = true;
+
+// ── Storage ──
+function load() {
+  try { contacts = JSON.parse(localStorage.getItem(KEY)) || []; } catch { contacts = []; }
+}
+function save() { try { localStorage.setItem(KEY, JSON.stringify(contacts)); } catch(e) {} }
+
+// ── Tabs ──
+document.getElementById('tabnav').addEventListener('click', e => {
+  const tab = e.target.closest('.tab');
+  if (!tab) return;
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  tab.classList.add('active');
+  activeTab = tab.dataset.tab;
+  render();
+});
+
+// ── Sort ──
+function sortBy(col) {
+  if (sortCol === col) sortAsc = !sortAsc; else { sortCol = col; sortAsc = true; }
+  render();
+}
+
+// ── Stage config ──
+const STAGE_CLASS = {
+  'New Lead': 'stage-new-lead',
+  'Qualified Lead': 'stage-qual-lead',
+  'Met': 'stage-met',
+  'Meeting Scheduled': 'stage-scheduled',
+  'Partner': 'stage-partner',
+  'Other': 'stage-other',
+};
+const CONF_CLASS = {
+  'Partner': 'conf-done',
+  'Meeting Scheduled': 'conf-very-high',
+  'Met': 'conf-high',
+  'New Lead': 'conf-medium',
+  'Qualified Lead': 'conf-medium',
+  'Other': 'conf-low',
+};
+const CONF_LABEL = {
+  'Partner': 'PARTNER',
+  'Meeting Scheduled': 'Scheduled',
+  'Met': 'Met',
+  'New Lead': 'New Lead',
+  'Qualified Lead': 'Qualified Lead',
+  'Other': 'Other',
+};
+
+function stageBadge(s) {
+  const cls = STAGE_CLASS[s] || 'stage-other';
+  return `<span class="stage ${cls}">${s || 'Other'}</span>`;
+}
+
+// ── Render ──
+function render() {
+  const q = (document.getElementById('searchInput').value || '').toLowerCase();
+
+  // counts for all statuses (unfiltered by tab)
+  const all = contacts.length;
+  const byStatus = s => contacts.filter(c => c.status === s).length;
+
+  document.getElementById('tab-all').textContent = contacts.length;
+  document.getElementById('tab-new-lead').textContent = byStatus('New Lead');
+  document.getElementById('tab-qual-lead').textContent = byStatus('Qualified Lead');
+  document.getElementById('tab-met').textContent = byStatus('Met');
+  document.getElementById('tab-sched').textContent = byStatus('Meeting Scheduled');
+  document.getElementById('tab-partner').textContent = byStatus('Partner');
+
+  document.getElementById('stat-total').textContent = all;
+  document.getElementById('stat-sub').textContent = all === 1 ? '1 contact' : `${all} contacts total`;
+  const leadCount = byStatus('New Lead') + byStatus('Qualified Lead');
+  document.getElementById('stat-leads').textContent = leadCount;
+  document.getElementById('stat-leads-sub').textContent = `${byStatus('Qualified Lead')} qualified`;
+  document.getElementById('stat-met').textContent = byStatus('Met');
+  document.getElementById('stat-sched').textContent = byStatus('Meeting Scheduled');
+  document.getElementById('stat-partners').textContent = byStatus('Partner');
+
+  // Update sync time
+  document.getElementById('syncInfo').textContent = 'Last updated · ' + new Date().toLocaleDateString('en-US', {month:'short', day:'numeric', year:'numeric', hour:'numeric', minute:'2-digit'});
+
+  let list = contacts.filter(c => {
+    const text = `${c.name} ${c.company} ${c.email} ${c.notes}`.toLowerCase();
+    const tabOk = activeTab === 'all' || c.status === activeTab;
+    return tabOk && (!q || text.includes(q));
+  });
+
+  list.sort((a, b) => {
+    let va = (a[sortCol] || '').toLowerCase();
+    let vb = (b[sortCol] || '').toLowerCase();
+    return sortAsc ? va.localeCompare(vb) : vb.localeCompare(va);
+  });
+
+  // Update sort arrows
+  ['name','company','status','lastMeeting'].forEach(c => {
+    const el = document.getElementById('sort-' + c);
+    if (el) el.textContent = sortCol === c ? (sortAsc ? '↑' : '↓') : '';
+  });
+
+  document.getElementById('tableCount').textContent = `${list.length} contact${list.length !== 1 ? 's' : ''}`;
+
+  const tbody = document.getElementById('tbody');
+  const table = document.getElementById('mainTable');
+  const empty = document.getElementById('emptyState');
+
+  if (list.length === 0) {
+    table.style.display = 'none';
+    empty.style.display = 'block';
+    const addBtn = empty.querySelector('.add-btn');
+    document.getElementById('emptyMsg').textContent = contacts.length === 0
+      ? 'No contacts yet. Add your first one!'
+      : 'No contacts match your search.';
+    addBtn.style.display = contacts.length === 0 ? '' : 'none';
+    return;
+  }
+
+  table.style.display = '';
+  empty.style.display = 'none';
+
+  tbody.innerHTML = list.map(c => {
+    const links = [
+      c.email    ? `<a href="mailto:${c.email}">${esc(c.email)}</a>` : '',
+      c.phone    ? `<a href="tel:${c.phone}">${esc(c.phone)}</a>` : '',
+      c.linkedin ? `<a href="${esc(c.linkedin)}" target="_blank" rel="noopener">LinkedIn ↗</a>` : '',
+    ].filter(Boolean).join('');
+
+    const mtg = c.lastMeeting
+      ? new Date(c.lastMeeting + 'T00:00:00').toLocaleDateString('en-US', {month:'short', day:'numeric', year:'numeric'})
+      : '<span class="cell-muted">—</span>';
+
+    return `<tr>
+      <td>
+        <div class="cell-name">${esc(c.name)}</div>
+      </td>
+      <td>
+        <span class="company-pill">${esc(c.company)}</span>
+      </td>
+      <td class="cell-contact">${links || '<span class="cell-muted">—</span>'}</td>
+      <td>${stageBadge(c.status)}</td>
+      <td class="cell-date">${mtg}</td>
+      <td class="cell-notes" title="${esc(c.notes)}">${esc(c.notes) || '<span class="cell-muted">—</span>'}</td>
+      <td>
+        <div class="action-row">
+          <button class="icon-btn" title="Edit" onclick="openEdit('${c.id}')">✏️</button>
+          <button class="icon-btn" title="Delete" onclick="openDelete('${c.id}')">🗑</button>
+        </div>
+      </td>
+    </tr>`;
+  }).join('');
+}
+
+function esc(s) {
+  if (!s) return '';
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+function clearSearch() {
+  document.getElementById('searchInput').value = '';
+  render();
+}
+
+// ── Modal helpers ──
+function overlayClick(e, id) {
+  if (e.target === document.getElementById(id)) closeModal(id);
+}
+function closeModal(id) {
+  document.getElementById(id).classList.remove('open');
+}
+
+// ── Add / Edit ──
+function openAdd() {
+  editingId = null;
+  document.getElementById('modalTitle').textContent = 'Add Contact';
+  document.getElementById('contactForm').reset();
+  document.getElementById('modalOverlay').classList.add('open');
+  setTimeout(() => document.getElementById('f-name').focus(), 50);
+}
+
+function openEdit(id) {
+  const c = contacts.find(x => x.id === id);
+  if (!c) return;
+  editingId = id;
+  document.getElementById('modalTitle').textContent = 'Edit Contact';
+  document.getElementById('f-name').value = c.name || '';
+  document.getElementById('f-company').value = c.company || '';
+  document.getElementById('f-email').value = c.email || '';
+  document.getElementById('f-phone').value = c.phone || '';
+  document.getElementById('f-linkedin').value = c.linkedin || '';
+  document.getElementById('f-status').value = c.status || 'New Lead';
+  document.getElementById('f-lastMeeting').value = c.lastMeeting || '';
+  document.getElementById('f-notes').value = c.notes || '';
+  document.getElementById('modalOverlay').classList.add('open');
+  setTimeout(() => document.getElementById('f-name').focus(), 50);
+}
+
+function saveContact(e) {
+  e.preventDefault();
+  const data = {
+    name: document.getElementById('f-name').value.trim(),
+    company: document.getElementById('f-company').value.trim(),
+    email: document.getElementById('f-email').value.trim(),
+    phone: document.getElementById('f-phone').value.trim(),
+    linkedin: document.getElementById('f-linkedin').value.trim(),
+    status: document.getElementById('f-status').value,
+    lastMeeting: document.getElementById('f-lastMeeting').value,
+    notes: document.getElementById('f-notes').value.trim(),
+  };
+  if (editingId) {
+    const idx = contacts.findIndex(x => x.id === editingId);
+    if (idx !== -1) contacts[idx] = { ...contacts[idx], ...data };
+  } else {
+    data.id = 'c' + Date.now() + Math.random().toString(36).slice(2,6);
+    contacts.unshift(data);
+  }
+  save();
+  closeModal('modalOverlay');
+  render();
+}
+
+// ── Delete ──
+function openDelete(id) {
+  deleteId = id;
+  document.getElementById('confirmOverlay').classList.add('open');
+}
+function confirmDelete() {
+  contacts = contacts.filter(x => x.id !== deleteId);
+  save();
+  closeModal('confirmOverlay');
+  deleteId = null;
+  render();
+}
+
+// ── Keyboard ──
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') {
+    closeModal('modalOverlay');
+    closeModal('confirmOverlay');
+  }
+});
+
+// ── Init ──
+load();
+render();
+</script>
+</body>
+</html>
