@@ -439,9 +439,49 @@
   .confirm-modal { max-width: 340px; text-align: center; }
   .confirm-modal p { color: var(--text-secondary); font-size: 13px; margin-bottom: 18px; line-height: 1.5; }
   .confirm-btns { display: flex; justify-content: center; gap: 10px; }
+
+  /* ── Password Gate ── */
+  #pwGate {
+    position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+    background: #1a1a2e;
+    display: flex; align-items: center; justify-content: center;
+    z-index: 9999;
+  }
+  #pwGate.hidden { display: none; }
+  .pw-box {
+    background: #fff; border-radius: 12px; padding: 40px;
+    width: 360px; text-align: center; box-shadow: 0 20px 60px rgba(0,0,0,0.4);
+  }
+  .pw-box h2 { margin: 0 0 6px; font-size: 22px; color: #1e293b; }
+  .pw-box p { color: #64748b; margin: 0 0 24px; font-size: 14px; }
+  .pw-box input {
+    width: 100%; padding: 12px 14px; border: 1.5px solid #e2e8f0;
+    border-radius: 8px; font-size: 15px; outline: none;
+    box-sizing: border-box; margin-bottom: 12px;
+  }
+  .pw-box input:focus { border-color: #d97706; }
+  .pw-btn {
+    width: 100%; padding: 12px; background: #d97706; color: #fff;
+    border: none; border-radius: 8px; font-size: 15px; font-weight: 600;
+    cursor: pointer;
+  }
+  .pw-btn:hover { background: #b45309; }
+  .pw-error { color: #ef4444; font-size: 13px; margin-top: 8px; display: none; }
+
 </style>
 </head>
 <body>
+
+<div id="pwGate">
+  <div class="pw-box">
+    <h2>Flow UAE Contact Book</h2>
+    <p>Enter the password to continue</p>
+    <input type="password" id="pwInput" placeholder="Password" onkeydown="if(event.key==='Enter')checkPw()" />
+    <button class="pw-btn" onclick="checkPw()">Enter</button>
+    <div class="pw-error" id="pwError">Incorrect password. Try again.</div>
+  </div>
+</div>
+
 
 <!-- Top bar -->
 <div class="topbar">
@@ -849,6 +889,24 @@ document.addEventListener('keydown', e => {
 // ── Init ──
 load();
 render();
+
+  var PW = 'flowmena-leads';
+  (function() {
+    if (sessionStorage.getItem('flow_uae_auth') === '1') {
+      document.getElementById('pwGate').classList.add('hidden');
+    }
+  })();
+  function checkPw() {
+    var val = document.getElementById('pwInput').value;
+    if (val === PW) {
+      sessionStorage.setItem('flow_uae_auth', '1');
+      document.getElementById('pwGate').classList.add('hidden');
+    } else {
+      document.getElementById('pwError').style.display = 'block';
+      document.getElementById('pwInput').value = '';
+    }
+  }
+
 </script>
 </body>
 </html>
