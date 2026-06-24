@@ -677,7 +677,8 @@ async function loadContacts() {
 }
 async function saveContacts() {
   try {
-    await fetch(API_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify(contacts) });
+    var url = API_URL + '?action=save&data=' + encodeURIComponent(JSON.stringify(contacts));
+    await fetch(url);
   } catch(e) {}
 }
 
