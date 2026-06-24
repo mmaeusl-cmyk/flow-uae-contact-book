@@ -467,6 +467,7 @@
   }
   .pw-btn:hover { background: #b45309; }
   .pw-error { color: #ef4444; font-size: 13px; margin-top: 8px; display: none; }
+  .cat-pill { display:inline-block; background:#f0fdf4; color:#166534; border-radius:4px; padding:2px 8px; font-size:11px; font-weight:600; }
 
 </style>
 </head>
@@ -556,10 +557,12 @@
       <tr>
         <th onclick="sortBy('name')">Contact <span id="sort-name"></span></th>
         <th onclick="sortBy('company')">Company <span id="sort-company"></span></th>
+        <th>Category</th>
         <th>Contact Info</th>
         <th onclick="sortBy('status')">Stage <span id="sort-status"></span></th>
         <th onclick="sortBy('lastMeeting')">Last Meeting <span id="sort-lastMeeting"></span></th>
-        <th>Notes</th>
+        <th>Next Meeting</th>
+        <th>Notes of Last Meeting &amp; Next Steps</th>
         <th></th>
       </tr>
     </thead>
@@ -599,6 +602,17 @@
           <input type="text" id="f-linkedin" placeholder="https://linkedin.com/in/…" />
         </div>
         <div class="form-group">
+          <label for="f-category">Category</label>
+          <select class="form-sel" id="f-category">
+            <option value="">— Select —</option>
+            <option value="Landlord">Landlord</option>
+            <option value="Broker">Broker</option>
+            <option value="Partner">Partner</option>
+            <option value="Vendor">Vendor</option>
+            <option value="Stakeholder">Stakeholder</option>
+          </select>
+        </div>
+        <div class="form-group">
           <label for="f-status">Stage</label>
           <select class="form-sel" id="f-status">
             <option value="New Lead">New Lead</option>
@@ -613,8 +627,12 @@
           <label for="f-lastMeeting">Last Meeting</label>
           <input type="date" id="f-lastMeeting" />
         </div>
+        <div class="form-group">
+          <label for="f-nextMeeting">Next Meeting</label>
+          <input type="date" id="f-nextMeeting" />
+        </div>
         <div class="form-group full">
-          <label for="f-notes">Notes</label>
+          <label for="f-notes">Notes of Last Meeting &amp; Next Steps</label>
           <textarea class="form-area" id="f-notes" placeholder="Context, follow-ups, next steps…"></textarea>
         </div>
       </div>
@@ -639,7 +657,6 @@
 </div>
 
 <script>
-const KEY = 'team_contacts_v2';
 let contacts = [];
 let editingId = null;
 let deleteId = null;
@@ -647,11 +664,22 @@ let activeTab = 'all';
 let sortCol = 'name';
 let sortAsc = true;
 
-// ── Storage ──
-function load() {
-  try { contacts = JSON.parse(localStorage.getItem(KEY)) || []; } catch { contacts = []; }
+// ── API Storage ──
+var API_URL = 'https://script.google.com/a/macros/flow.life/s/AKfycbzsPHOtaEv-pxNtfPn4OBW0Cj7DY6r6VACJEi26cAtuhgpzVx4dpMqeejXtRYSN7g0P5g/exec';
+async function loadContacts() {
+  document.getElementById('syncInfo').textContent = 'Loading…';
+  try {
+    var resp = await fetch(API_URL);
+    var data = await resp.json();
+    contacts = Array.isArray(data) ? data.filter(function(c){ return c.name; }) : [];
+  } catch(e) { contacts = []; }
+  render();
 }
-function save() { try { localStorage.setItem(KEY, JSON.stringify(contacts)); } catch(e) {} }
+async function saveContacts() {
+  try {
+    await fetch(API_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify(contacts) });
+  } catch(e) {}
+}
 
 // ── Tabs ──
 document.getElementById('tabnav').addEventListener('click', e => {
@@ -776,21 +804,23 @@ function render() {
       ? new Date(c.lastMeeting + 'T00:00:00').toLocaleDateString('en-US', {month:'short', day:'numeric', year:'numeric'})
       : '<span class="cell-muted">—</span>';
 
+    var nextMtg = c.nextMeeting
+      ? new Date(c.nextMeeting + 'T00:00:00').toLocaleDateString('en-US', {month:'short', day:'numeric', year:'numeric'})
+      : '<span class="cell-muted">—</span>';
+    var catPill = c.category ? '<span class="cat-pill">' + esc(c.category) + '</span>' : '<span class="cell-muted">—</span>';
     return `<tr>
-      <td>
-        <div class="cell-name">${esc(c.name)}</div>
-      </td>
-      <td>
-        <span class="company-pill">${esc(c.company)}</span>
-      </td>
+      <td><div class="cell-name">${esc(c.name)}</div></td>
+      <td><span class="company-pill">${esc(c.company)}</span></td>
+      <td>${catPill}</td>
       <td class="cell-contact">${links || '<span class="cell-muted">—</span>'}</td>
       <td>${stageBadge(c.status)}</td>
       <td class="cell-date">${mtg}</td>
+      <td class="cell-date">${nextMtg}</td>
       <td class="cell-notes" title="${esc(c.notes)}">${esc(c.notes) || '<span class="cell-muted">—</span>'}</td>
       <td>
         <div class="action-row">
-          <button class="icon-btn" title="Edit" onclick="openEdit('${c.id}')">✏️</button>
-          <button class="icon-btn" title="Delete" onclick="openDelete('${c.id}')">🗑</button>
+          <button class="icon-btn" title="Edit" onclick="openEdit('${c.id}')">&#9999;</button>
+          <button class="icon-btn" title="Delete" onclick="openDelete('${c.id}')">&#128465;</button>
         </div>
       </td>
     </tr>`;
@@ -835,7 +865,9 @@ function openEdit(id) {
   document.getElementById('f-phone').value = c.phone || '';
   document.getElementById('f-linkedin').value = c.linkedin || '';
   document.getElementById('f-status').value = c.status || 'New Lead';
+  document.getElementById('f-category').value = c.category || '';
   document.getElementById('f-lastMeeting').value = c.lastMeeting || '';
+  document.getElementById('f-nextMeeting').value = c.nextMeeting || '';
   document.getElementById('f-notes').value = c.notes || '';
   document.getElementById('modalOverlay').classList.add('open');
   setTimeout(() => document.getElementById('f-name').focus(), 50);
@@ -849,8 +881,10 @@ function saveContact(e) {
     email: document.getElementById('f-email').value.trim(),
     phone: document.getElementById('f-phone').value.trim(),
     linkedin: document.getElementById('f-linkedin').value.trim(),
+    category: document.getElementById('f-category').value,
     status: document.getElementById('f-status').value,
     lastMeeting: document.getElementById('f-lastMeeting').value,
+    nextMeeting: document.getElementById('f-nextMeeting').value,
     notes: document.getElementById('f-notes').value.trim(),
   };
   if (editingId) {
@@ -860,7 +894,7 @@ function saveContact(e) {
     data.id = 'c' + Date.now() + Math.random().toString(36).slice(2,6);
     contacts.unshift(data);
   }
-  save();
+  saveContacts();
   closeModal('modalOverlay');
   render();
 }
@@ -872,7 +906,7 @@ function openDelete(id) {
 }
 function confirmDelete() {
   contacts = contacts.filter(x => x.id !== deleteId);
-  save();
+  saveContacts();
   closeModal('confirmOverlay');
   deleteId = null;
   render();
@@ -887,8 +921,7 @@ document.addEventListener('keydown', e => {
 });
 
 // ── Init ──
-load();
-render();
+loadContacts();
 
   var PW = 'flowmena-leads';
   (function() {
