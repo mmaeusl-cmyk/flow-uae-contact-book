@@ -664,21 +664,37 @@ let activeTab = 'all';
 let sortCol = 'name';
 let sortAsc = true;
 
-// ── API Storage ──
+// ── API Storage (JSONP) ──
 var API_URL = 'https://script.google.com/a/macros/flow.life/s/AKfycbzsPHOtaEv-pxNtfPn4OBW0Cj7DY6r6VACJEi26cAtuhgpzVx4dpMqeejXtRYSN7g0P5g/exec';
+
+function jsonp(url) {
+  return new Promise(function(resolve) {
+    var cb = 'cb_' + Date.now();
+    window[cb] = function(data) {
+      delete window[cb];
+      if (s.parentNode) s.parentNode.removeChild(s);
+      resolve(data);
+    };
+    var s = document.createElement('script');
+    s.src = url + (url.indexOf('?') >= 0 ? '&' : '?') + 'callback=' + cb;
+    s.onerror = function() { resolve(null); };
+    document.head.appendChild(s);
+  });
+}
+
 async function loadContacts() {
   document.getElementById('syncInfo').textContent = 'Loading…';
   try {
-    var resp = await fetch(API_URL);
-    var data = await resp.json();
+    var data = await jsonp(API_URL);
     contacts = Array.isArray(data) ? data.filter(function(c){ return c.name; }) : [];
   } catch(e) { contacts = []; }
   render();
 }
+
 async function saveContacts() {
   try {
     var url = API_URL + '?action=save&data=' + encodeURIComponent(JSON.stringify(contacts));
-    await fetch(url);
+    await jsonp(url);
   } catch(e) {}
 }
 
