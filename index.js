@@ -9,7 +9,7 @@ app.use(express.json());
 app.use(express.static(path.join(__dirname, 'public')));
 
 const pool = new Pool({
-  host: 'pgsql-flex-resources-ftools-prod-eastus2.postgres.database.azure.com',
+  host: 'pqsql-ftools-prod-resources-k8s.privatelink.postgres.database.azure.com',
   port: 6432,
   database: 'production_resource_wdvfwpqjtrpxosypgs',
   user: 'service_resource_wdvfwpqjtrpxosypgs',
