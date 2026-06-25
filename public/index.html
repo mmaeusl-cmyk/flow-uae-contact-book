@@ -664,28 +664,14 @@ let activeTab = 'all';
 let sortCol = 'name';
 let sortAsc = true;
 
-// ── API Storage (JSONP) ──
-var API_URL = 'https://script.google.com/a/macros/flow.life/s/AKfycbzsPHOtaEv-pxNtfPn4OBW0Cj7DY6r6VACJEi26cAtuhgpzVx4dpMqeejXtRYSN7g0P5g/exec';
-
-function jsonp(url) {
-  return new Promise(function(resolve) {
-    var cb = 'cb_' + Date.now();
-    window[cb] = function(data) {
-      delete window[cb];
-      if (s.parentNode) s.parentNode.removeChild(s);
-      resolve(data);
-    };
-    var s = document.createElement('script');
-    s.src = url + (url.indexOf('?') >= 0 ? '&' : '?') + 'callback=' + cb;
-    s.onerror = function() { resolve(null); };
-    document.head.appendChild(s);
-  });
-}
+// ── API Storage (PostgreSQL) ──
+var API_BASE = '/api';
 
 async function loadContacts() {
   document.getElementById('syncInfo').textContent = 'Loading…';
   try {
-    var data = await jsonp(API_URL);
+    var resp = await fetch(API_BASE + '/contacts');
+    var data = await resp.json();
     contacts = Array.isArray(data) ? data.filter(function(c){ return c.name; }) : [];
   } catch(e) { contacts = []; }
   render();
@@ -693,8 +679,11 @@ async function loadContacts() {
 
 async function saveContacts() {
   try {
-    var url = API_URL + '?action=save&data=' + encodeURIComponent(JSON.stringify(contacts));
-    await jsonp(url);
+    await fetch(API_BASE + '/contacts', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(contacts)
+    });
   } catch(e) {}
 }
 
