@@ -14,30 +14,27 @@ const pool = new Pool({
   database: 'production_resource_wdvfwpqjtrpxosypgs',
   user: 'service_resource_wdvfwpqjtrpxosypgs',
   password: process.env.DB_PASSWORD,
-  ssl: { rejectUnauthorized: false }
+  ssl: { rejectUnauthorized: false },
+  connectionTimeoutMillis: 10000
 });
+
+let dbReady = false;
 
 async function init() {
   await pool.query(`
     CREATE TABLE IF NOT EXISTS contacts (
       id TEXT PRIMARY KEY,
-      name TEXT,
-      company TEXT,
-      email TEXT,
-      phone TEXT,
-      linkedin TEXT,
-      category TEXT,
-      status TEXT,
-      last_meeting TEXT,
-      next_meeting TEXT,
-      notes TEXT,
+      name TEXT, company TEXT, email TEXT, phone TEXT,
+      linkedin TEXT, category TEXT, status TEXT,
+      last_meeting TEXT, next_meeting TEXT, notes TEXT,
       created_at TIMESTAMP DEFAULT NOW()
     )
   `);
+  dbReady = true;
   console.log('Database ready');
 }
 
-app.get('/health', (req, res) => res.json({ ok: true }));
+app.get('/health', (req, res) => res.json({ ok: true, db: dbReady }));
 
 app.get('/api/contacts', async (req, res) => {
   try {
@@ -49,6 +46,7 @@ app.get('/api/contacts', async (req, res) => {
       nextMeeting: r.next_meeting, notes: r.notes
     })));
   } catch(e) {
+    console.error('GET /api/contacts error:', e.message);
     res.status(500).json({ error: e.message });
   }
 });
@@ -71,6 +69,7 @@ app.post('/api/contacts', async (req, res) => {
     res.json({ success: true });
   } catch(e) {
     await client.query('ROLLBACK');
+    console.error('POST /api/contacts error:', e.message);
     res.status(500).json({ error: e.message });
   } finally {
     client.release();
@@ -78,6 +77,10 @@ app.post('/api/contacts', async (req, res) => {
 });
 
 const PORT = process.env.PORT || 3000;
-init().then(() => {
-  app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
-}).catch(err => { console.error(err); process.exit(1); });
+
+// Start server immediately, init DB in background
+app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+
+init().catch(err => {
+  console.error('DB init failed (will retry on next request):', err.message);
+});
