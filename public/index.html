@@ -7,14 +7,14 @@
 <style>
   :root {
     color-scheme: light;
-    --orange: #e8860a;
-    --orange-btn: #d97706;
-    --orange-hover: #b45309;
+    --accent: #111827;
+    --btn: #111827;
+    --btn-hover: #374151;
     --text: #111827;
     --text-secondary: #6b7280;
     --text-muted: #9ca3af;
     --border: #e5e7eb;
-    --bg: #f9fafb;
+    --bg: #f0efe9;
     --white: #fff;
     --radius: 6px;
   }
@@ -42,7 +42,7 @@
   .brand-dot {
     width: 8px; height: 8px;
     border-radius: 50%;
-    background: var(--orange);
+    background: var(--accent);
     flex-shrink: 0;
   }
   .brand-name {
@@ -81,7 +81,7 @@
   .tabnav {
     background: var(--white);
     border-bottom: 1px solid var(--border);
-    padding: 0 20px;
+    padding: 0 24px;
     display: flex;
     gap: 0;
   }
@@ -99,7 +99,7 @@
   .tab:hover { color: var(--text); }
   .tab.active {
     color: var(--text);
-    border-bottom-color: var(--orange);
+    border-bottom-color: var(--accent);
     font-weight: 600;
   }
   .tab-count {
@@ -111,13 +111,13 @@
     margin-left: 4px;
     color: var(--text-secondary);
   }
-  .tab.active .tab-count { background: #fef3c7; color: var(--orange); }
+  .tab.active .tab-count { background: #fef3c7; color: var(--accent); }
 
   /* ── Ask bar ── */
   .askbar {
     background: var(--white);
     border-bottom: 1px solid var(--border);
-    padding: 10px 20px;
+    padding: 10px 24px;
     display: flex;
     gap: 8px;
     align-items: center;
@@ -135,9 +135,9 @@
     transition: border-color .12s;
   }
   .askbar input::placeholder { color: var(--text-muted); }
-  .askbar input:focus { border-color: var(--orange); }
+  .askbar input:focus { border-color: var(--accent); }
   .ask-btn {
-    background: var(--orange-btn);
+    background: var(--btn);
     color: #fff;
     border: none;
     border-radius: var(--radius);
@@ -148,7 +148,7 @@
     font-family: inherit;
     transition: background .12s;
   }
-  .ask-btn:hover { background: var(--orange-hover); }
+  .ask-btn:hover { background: var(--btn-hover); }
   .clear-btn {
     background: none;
     border: none;
@@ -166,7 +166,7 @@
     gap: 0;
     background: var(--white);
     border-bottom: 1px solid var(--border);
-    padding: 0 20px;
+    padding: 0 24px;
     overflow-x: auto;
   }
   .stat-card {
@@ -200,13 +200,13 @@
   .table-header {
     display: flex;
     align-items: center;
-    padding: 12px 20px;
+    padding: 12px 24px;
     gap: 10px;
   }
   .table-count { font-size: 13px; color: var(--text-secondary); }
   .add-btn {
     margin-left: auto;
-    background: var(--orange-btn);
+    background: var(--btn);
     color: #fff;
     border: none;
     border-radius: var(--radius);
@@ -217,9 +217,9 @@
     font-family: inherit;
     transition: background .12s;
   }
-  .add-btn:hover { background: var(--orange-hover); }
+  .add-btn:hover { background: var(--btn-hover); }
 
-  .table-wrap { padding: 0 20px 32px; overflow-x: auto; }
+  .table-wrap { padding: 0 24px 32px; overflow-x: auto; }
   table {
     width: 100%;
     border-collapse: collapse;
@@ -257,7 +257,7 @@
   .cell-sub { font-size: 11px; color: var(--text-muted); margin-top: 1px; }
   .cell-contact a {
     display: block;
-    color: var(--orange-btn);
+    color: var(--btn);
     text-decoration: none;
     font-size: 12px;
     line-height: 1.6;
@@ -329,7 +329,7 @@
     cursor: pointer;
     white-space: nowrap;
   }
-  .add-doc-link:hover { color: var(--orange-btn); }
+  .add-doc-link:hover { color: var(--btn); }
 
   /* ── Empty ── */
   .empty {
@@ -387,7 +387,7 @@
     font-family: inherit;
     transition: border-color .12s;
   }
-  input:focus, select.form-sel:focus, textarea.form-area:focus { border-color: var(--orange); }
+  input:focus, select.form-sel:focus, textarea.form-area:focus { border-color: var(--accent); }
   textarea.form-area { resize: vertical; min-height: 64px; }
   .modal-footer {
     display: flex;
@@ -410,7 +410,7 @@
   }
   .btn-cancel:hover { background: #f3f4f6; }
   .btn-save {
-    background: var(--orange-btn);
+    background: var(--btn);
     color: #fff;
     border: none;
     border-radius: var(--radius);
@@ -421,7 +421,7 @@
     font-family: inherit;
     transition: background .12s;
   }
-  .btn-save:hover { background: var(--orange-hover); }
+  .btn-save:hover { background: var(--btn-hover); }
   .btn-del {
     background: #dc2626;
     color: #fff;
@@ -459,16 +459,35 @@
     border-radius: 8px; font-size: 15px; outline: none;
     box-sizing: border-box; margin-bottom: 12px;
   }
-  .pw-box input:focus { border-color: #d97706; }
+  .pw-box input:focus { border-color: #111827; }
   .pw-btn {
-    width: 100%; padding: 12px; background: #d97706; color: #fff;
+    width: 100%; padding: 12px; background: #111827; color: #fff;
     border: none; border-radius: 8px; font-size: 15px; font-weight: 600;
     cursor: pointer;
   }
-  .pw-btn:hover { background: #b45309; }
+  .pw-btn:hover { background: #374151; }
   .pw-error { color: #ef4444; font-size: 13px; margin-top: 8px; display: none; }
   .cat-pill { display:inline-block; background:#f0fdf4; color:#166534; border-radius:4px; padding:2px 8px; font-size:11px; font-weight:600; }
 
+  .filter-row td {
+    padding: 4px 14px 8px;
+    border-bottom: 1px solid var(--border);
+    background: var(--white);
+  }
+  .col-filter {
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 3px 6px;
+    font-size: 11px;
+    font-family: inherit;
+    color: var(--text-secondary);
+    background: var(--white);
+    cursor: pointer;
+    outline: none;
+    width: 100%;
+    max-width: 120px;
+  }
+  .col-filter:focus { border-color: var(--accent); }
 </style>
 </head>
 <body>
@@ -487,15 +506,20 @@
 <!-- Top bar -->
 <div class="topbar">
   <div class="topbar-inner">
-    <div class="brand-dot"></div>
-    <span class="brand-name">Team</span>
-    <span class="breadcrumb-sep">›</span>
-    <span class="page-title">Contact Book</span>
+    <div class="brand-mark">
+      <span class="brand-flow">flow</span>
+      <span class="brand-region">MENA</span>
+    </div>
     <div class="topbar-right">
       <span class="sync-info" id="syncInfo">—</span>
       <div class="team-btn">👥 Team</div>
     </div>
   </div>
+</div>
+
+<div class="page-header">
+  <h1 class="page-heading">Contact Book</h1>
+  <p class="page-sub" id="pageSub">UAE leads &amp; partnerships</p>
 </div>
 
 <!-- Tab nav -->
@@ -564,6 +588,17 @@
         <th>Next Meeting</th>
         <th>Notes of Last Meeting &amp; Next Steps</th>
         <th></th>
+      </tr>
+      <tr class="filter-row">
+        <td></td>
+        <td><select class="col-filter" id="filter-company" onchange="render()"><option value="">All</option></select></td>
+        <td><select class="col-filter" id="filter-category" onchange="render()"><option value="">All</option><option>Landlord</option><option>Broker</option><option>Partner</option><option>Vendor</option><option>Stakeholder</option></select></td>
+        <td></td>
+        <td><select class="col-filter" id="filter-stage" onchange="render()"><option value="">All</option><option>New Lead</option><option>Qualified Lead</option><option>Met</option><option>Meeting Scheduled</option><option>Partner</option><option>Other</option></select></td>
+        <td></td>
+        <td></td>
+        <td></td>
+        <td></td>
       </tr>
     </thead>
     <tbody id="tbody"></tbody>
@@ -764,11 +799,28 @@ function render() {
 
   // Update sync time
   document.getElementById('syncInfo').textContent = 'Last updated · ' + new Date().toLocaleDateString('en-US', {month:'short', day:'numeric', year:'numeric', hour:'numeric', minute:'2-digit'});
+  const subEl = document.getElementById('pageSub');
+  if (subEl) subEl.textContent = 'UAE leads & partnerships · ' + contacts.length + ' contact' + (contacts.length !== 1 ? 's' : '');
+
+  // Populate company dropdown dynamically
+  const companyFilter = document.getElementById('filter-company');
+  if (companyFilter) {
+    const current = companyFilter.value;
+    const companies = [...new Set(contacts.map(c => c.company).filter(Boolean))].sort();
+    companyFilter.innerHTML = '<option value="">All</option>' + companies.map(co => `<option${co === current ? ' selected' : ''}>${esc(co)}</option>`).join('');
+    companyFilter.value = current;
+  }
+  const fCompany = (document.getElementById('filter-company')?.value || '').toLowerCase();
+  const fCategory = (document.getElementById('filter-category')?.value || '').toLowerCase();
+  const fStage = (document.getElementById('filter-stage')?.value || '');
 
   let list = contacts.filter(c => {
     const text = `${c.name} ${c.title} ${c.company} ${c.email} ${c.notes}`.toLowerCase();
     const tabOk = activeTab === 'all' || c.status === activeTab;
-    return tabOk && (!q || text.includes(q));
+    const companyOk = !fCompany || (c.company || '').toLowerCase() === fCompany;
+    const categoryOk = !fCategory || (c.category || '').toLowerCase() === fCategory;
+    const stageOk = !fStage || c.status === fStage;
+    return tabOk && companyOk && categoryOk && stageOk && (!q || text.includes(q));
   });
 
   list.sort((a, b) => {
