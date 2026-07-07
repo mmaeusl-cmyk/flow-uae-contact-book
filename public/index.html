@@ -586,6 +586,10 @@
           <input type="text" id="f-name" required placeholder="Jane Smith" />
         </div>
         <div class="form-group">
+          <label for="f-title">Title</label>
+          <input type="text" id="f-title" placeholder="Managing Director" />
+        </div>
+        <div class="form-group">
           <label for="f-company">Company *</label>
           <input type="text" id="f-company" required placeholder="Acme Corp" />
         </div>
@@ -762,7 +766,7 @@ function render() {
   document.getElementById('syncInfo').textContent = 'Last updated · ' + new Date().toLocaleDateString('en-US', {month:'short', day:'numeric', year:'numeric', hour:'numeric', minute:'2-digit'});
 
   let list = contacts.filter(c => {
-    const text = `${c.name} ${c.company} ${c.email} ${c.notes}`.toLowerCase();
+    const text = `${c.name} ${c.title} ${c.company} ${c.email} ${c.notes}`.toLowerCase();
     const tabOk = activeTab === 'all' || c.status === activeTab;
     return tabOk && (!q || text.includes(q));
   });
@@ -815,7 +819,7 @@ function render() {
       : '<span class="cell-muted">—</span>';
     var catPill = c.category ? '<span class="cat-pill">' + esc(c.category) + '</span>' : '<span class="cell-muted">—</span>';
     return `<tr>
-      <td><div class="cell-name">${esc(c.name)}</div></td>
+      <td><div class="cell-name">${esc(c.name)}</div>${c.title ? '<div style="font-size:11px;color:var(--text-secondary);margin-top:2px;">' + esc(c.title) + '</div>' : ''}</td>
       <td><span class="company-pill">${esc(c.company)}</span></td>
       <td>${catPill}</td>
       <td class="cell-contact">${links || '<span class="cell-muted">—</span>'}</td>
@@ -866,6 +870,7 @@ function openEdit(id) {
   editingId = id;
   document.getElementById('modalTitle').textContent = 'Edit Contact';
   document.getElementById('f-name').value = c.name || '';
+  document.getElementById('f-title').value = c.title || '';
   document.getElementById('f-company').value = c.company || '';
   document.getElementById('f-email').value = c.email || '';
   document.getElementById('f-phone').value = c.phone || '';
@@ -883,6 +888,7 @@ function saveContact(e) {
   e.preventDefault();
   const data = {
     name: document.getElementById('f-name').value.trim(),
+    title: document.getElementById('f-title').value.trim(),
     company: document.getElementById('f-company').value.trim(),
     email: document.getElementById('f-email').value.trim(),
     phone: document.getElementById('f-phone').value.trim(),
