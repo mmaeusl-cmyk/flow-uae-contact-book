@@ -79,6 +79,21 @@ app.post('/api/contacts', async (req, res) => {
 
 const PORT = process.env.PORT || 3000;
 
+
+// Font proxy for Roughwell (served from flow.life CDN, no CORS headers)
+app.get('/fonts/roughwell.woff2', async (req, res) => {
+  try {
+    const https = require('https');
+    https.get('https://ingress-a.flow.life/_next/static/media/377371f934d4841a-s.p.woff2', (r) => {
+      res.set('Content-Type', 'font/woff2');
+      res.set('Cache-Control', 'public, max-age=31536000');
+      r.pipe(res);
+    }).on('error', (e) => res.status(500).send(e.message));
+  } catch(e) {
+    res.status(500).send(e.message);
+  }
+});
+
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
 
 init().catch(err => {
