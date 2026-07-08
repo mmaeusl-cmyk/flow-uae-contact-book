@@ -518,9 +518,50 @@
   .btn, button {
     font-family: 'Inter', sans-serif;
   }
+
+  /* ── Password Gate ── */
+  #pwGate {
+    position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+    background: var(--bg);
+    display: flex; align-items: center; justify-content: center;
+    z-index: 9999;
+  }
+  #pwGate.hidden { display: none; }
+  .pw-box {
+    background: var(--white); border-radius: 12px; padding: 40px;
+    width: 360px; text-align: center;
+    box-shadow: 0 4px 24px rgba(0,0,0,0.08);
+    border: 1px solid var(--border);
+  }
+  .pw-box h2 { margin: 0 0 6px; font-size: 20px; color: var(--text); font-family: 'Roughwell', Arial, sans-serif; letter-spacing: 0.04em; }
+  .pw-box p { color: var(--text-secondary); margin: 0 0 24px; font-size: 13px; font-family: 'Inter', sans-serif; }
+  .pw-box input {
+    width: 100%; padding: 10px 14px; border: 1.5px solid var(--border);
+    border-radius: var(--radius); font-size: 14px; font-family: 'Inter', sans-serif;
+    margin-bottom: 12px; box-sizing: border-box; outline: none;
+  }
+  .pw-box input:focus { border-color: var(--accent); }
+  .pw-btn {
+    width: 100%; padding: 10px; background: var(--btn); color: #fff;
+    border: none; border-radius: var(--radius); font-size: 14px;
+    font-family: 'Inter', sans-serif; cursor: pointer; font-weight: 500;
+  }
+  .pw-btn:hover { background: var(--btn-hover); }
+  .pw-error { color: #dc2626; font-size: 12px; margin-top: 10px; font-family: 'Inter', sans-serif; display: none; }
 </style>
 </head>
 <body>
+
+<div id="pwGate">
+  <div class="pw-box">
+    <h2>Flow UAE</h2>
+    <p>Enter the password to continue</p>
+    <input type="password" id="pwInput" placeholder="Password" onkeydown="if(event.key==='Enter')checkPw()" />
+    <button class="pw-btn" onclick="checkPw()">Enter</button>
+    <div class="pw-error" id="pwError">Incorrect password. Try again.</div>
+  </div>
+</div>
+
 
 
 <!-- Top bar -->
@@ -985,6 +1026,27 @@ loadContacts();
     }
   })();
   
+
+
+function checkPw() {
+  const val = document.getElementById('pwInput').value;
+  if (val === 'flowmena-leads') {
+    sessionStorage.setItem('auth', '1');
+    document.getElementById('pwGate').classList.add('hidden');
+  } else {
+    document.getElementById('pwError').style.display = 'block';
+  }
+}
+// On load check session
+if (sessionStorage.getItem('auth') !== '1') {
+  document.addEventListener('DOMContentLoaded', () => {
+    document.getElementById('pwGate')?.classList.remove('hidden');
+  });
+} else {
+  document.addEventListener('DOMContentLoaded', () => {
+    document.getElementById('pwGate')?.classList.add('hidden');
+  });
+}
 
 </script>
 </body>
