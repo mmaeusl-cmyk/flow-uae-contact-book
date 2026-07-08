@@ -728,6 +728,8 @@
 </div>
 
 <script>
+function _set(id,v){const e=document.getElementById(id);if(e)e.textContent=v;}
+
 let contacts = [];
 let editingId = null;
 let deleteId = null;
@@ -820,14 +822,14 @@ function render() {
   document.getElementById('tab-sched').textContent = byStatus('Meeting Scheduled');
   document.getElementById('tab-partner').textContent = byStatus('Partner');
 
-  document.getElementById('stat-total')?.textContent = all;
-  document.getElementById('stat-sub')?.textContent = all === 1 ? '1 contact' : `${all} contacts total`;
+  _set('stat-total', all);
+  _set('stat-sub', all === 1 ? '1 contact' : `${all} contacts total`);
   const leadCount = byStatus('New Lead') + byStatus('Qualified Lead');
-  document.getElementById('stat-leads')?.textContent = leadCount;
-  document.getElementById('stat-leads-sub')?.textContent = `${byStatus('Qualified Lead')} qualified`;
-  document.getElementById('stat-met')?.textContent = byStatus('Met');
-  document.getElementById('stat-sched')?.textContent = byStatus('Meeting Scheduled');
-  document.getElementById('stat-partners')?.textContent = byStatus('Partner');
+  _set('stat-leads', leadCount);
+  _set('stat-leads-sub', `${byStatus('Qualified Lead')} qualified`);
+  _set('stat-met', byStatus('Met'));
+  _set('stat-sched', byStatus('Meeting Scheduled'));
+  _set('stat-partners', byStatus('Partner'));
 
   // Update sync time
   document.getElementById('syncInfo').textContent = 'Last updated · ' + new Date().toLocaleDateString('en-US', {month:'short', day:'numeric', year:'numeric', hour:'numeric', minute:'2-digit'});
