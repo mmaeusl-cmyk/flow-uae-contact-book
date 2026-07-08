@@ -243,29 +243,32 @@
   thead { background: var(--white); }
   th {
     text-align: left;
-    padding: 10px 14px;
-    font-size: 11px;
-    font-weight: 700;
-    letter-spacing: .06em;
+    padding: 8px 14px;
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: .07em;
     text-transform: uppercase;
     color: var(--text-muted);
     border-bottom: 1px solid var(--border);
     white-space: nowrap;
     cursor: pointer;
     user-select: none;
+    font-family: 'Inter', sans-serif;
   }
   th:hover { color: var(--text); }
   td {
-    padding: 11px 14px;
+    padding: 9px 14px;
     border-bottom: 1px solid var(--border);
     vertical-align: middle;
     font-weight: normal;
+    font-family: 'Inter', sans-serif;
+    font-size: 12px;
   }
   tr:last-child td { border-bottom: none; }
   tr:hover td { background: #fafafa; }
 
   /* ── Cell styles ── */
-  .cell-name { font-weight: 600; color: var(--text); font-size: 13px; }
+  .cell-name { font-weight: normal; color: var(--text); font-size: 13px; font-family: 'Roughwell', Arial, sans-serif; }
   .cell-sub { font-size: 11px; color: var(--text-muted); margin-top: 1px; }
   .cell-contact a {
     display: block;
@@ -279,13 +282,10 @@
   /* Company pill (like city badges) */
   .company-pill {
     display: inline-block;
-    background: #eff6ff;
-    color: #1d4ed8;
-    border-radius: 4px;
-    padding: 2px 8px;
     font-size: 11px;
-    font-weight: 600;
-    white-space: nowrap;
+    font-weight: 500;
+    color: var(--text-secondary);
+    font-family: 'Inter', sans-serif;
   }
 
   /* Stage badges */
@@ -319,9 +319,9 @@
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
-    font-style: italic;
+    font-family: 'Inter', sans-serif;
   }
-  .cell-date { color: var(--text-secondary); font-size: 12px; white-space: nowrap; }
+  .cell-date { color: var(--text-secondary); font-size: 12px; white-space: nowrap; font-family: 'Inter', sans-serif; }
   .cell-muted { color: var(--text-muted); }
 
   /* Action icons */
