@@ -26,11 +26,12 @@ async function init() {
       id TEXT PRIMARY KEY,
       name TEXT, title TEXT, company TEXT, email TEXT, phone TEXT,
       linkedin TEXT, category TEXT, status TEXT,
-      last_meeting TEXT, next_meeting TEXT, notes TEXT,
+      last_meeting TEXT, next_meeting TEXT, notes TEXT, city TEXT,
       created_at TIMESTAMP DEFAULT NOW()
     )
   `);
   await pool.query(`ALTER TABLE contacts ADD COLUMN IF NOT EXISTS title TEXT`);
+  await pool.query(`ALTER TABLE contacts ADD COLUMN IF NOT EXISTS city TEXT`);
   dbReady = true;
   console.log('Database ready');
 }
@@ -44,7 +45,7 @@ app.get('/api/contacts', async (req, res) => {
       id: r.id, name: r.name, title: r.title, company: r.company, email: r.email,
       phone: r.phone, linkedin: r.linkedin, category: r.category,
       status: r.status, lastMeeting: r.last_meeting,
-      nextMeeting: r.next_meeting, notes: r.notes
+      nextMeeting: r.next_meeting, notes: r.notes, city: r.city
     })));
   } catch(e) {
     console.error('GET /api/contacts error:', e.message);
@@ -63,7 +64,7 @@ app.post('/api/contacts', async (req, res) => {
       await client.query(
         `INSERT INTO contacts (id,name,title,company,email,phone,linkedin,category,status,last_meeting,next_meeting,notes)
          VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12)`,
-        [c.id,c.name,c.title||null,c.company,c.email,c.phone,c.linkedin,c.category,c.status,c.lastMeeting,c.nextMeeting,c.notes]
+        [c.id,c.name,c.title||null,c.company,c.email,c.phone,c.linkedin,c.category,c.status,c.lastMeeting,c.nextMeeting,c.notes,c.city||null]
       );
     }
     await client.query('COMMIT');
