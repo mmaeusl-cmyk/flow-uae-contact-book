@@ -62,8 +62,8 @@ app.post('/api/contacts', async (req, res) => {
     await client.query('DELETE FROM contacts');
     for (const c of contacts) {
       await client.query(
-        `INSERT INTO contacts (id,name,title,company,email,phone,linkedin,category,status,last_meeting,next_meeting,notes)
-         VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12)`,
+        `INSERT INTO contacts (id,name,title,company,email,phone,linkedin,category,status,last_meeting,next_meeting,notes,city)
+         VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13)`,
         [c.id,c.name,c.title||null,c.company,c.email,c.phone,c.linkedin,c.category,c.status,c.lastMeeting,c.nextMeeting,c.notes,c.city||null]
       );
     }
