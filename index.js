@@ -53,17 +53,51 @@ app.get('/api/contacts', async (req, res) => {
   }
 });
 
+// Upsert a single contact (add or update)
+app.post('/api/contacts/:id', async (req, res) => {
+  const { id } = req.params;
+  const c = req.body;
+  try {
+    await pool.query(
+      `INSERT INTO contacts (id,name,title,company,email,phone,linkedin,category,status,last_meeting,next_meeting,notes,city)
+       VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13)
+       ON CONFLICT (id) DO UPDATE SET
+         name=$2,title=$3,company=$4,email=$5,phone=$6,linkedin=$7,
+         category=$8,status=$9,last_meeting=$10,next_meeting=$11,notes=$12,city=$13`,
+      [id,c.name,c.title||null,c.company,c.email,c.phone,c.linkedin,c.category,c.status,c.lastMeeting,c.nextMeeting,c.notes,c.city||null]
+    );
+    res.json({ success: true });
+  } catch(e) {
+    console.error('POST /api/contacts/:id error:', e.message);
+    res.status(500).json({ error: e.message });
+  }
+});
+
+// Delete a single contact
+app.delete('/api/contacts/:id', async (req, res) => {
+  try {
+    await pool.query('DELETE FROM contacts WHERE id=$1', [req.params.id]);
+    res.json({ success: true });
+  } catch(e) {
+    console.error('DELETE /api/contacts/:id error:', e.message);
+    res.status(500).json({ error: e.message });
+  }
+});
+
+// Legacy bulk endpoint kept for compatibility but now uses upsert (no delete)
 app.post('/api/contacts', async (req, res) => {
   const contacts = req.body;
   if (!Array.isArray(contacts)) return res.status(400).json({ error: 'Expected array' });
   const client = await pool.connect();
   try {
     await client.query('BEGIN');
-    await client.query('DELETE FROM contacts');
     for (const c of contacts) {
       await client.query(
         `INSERT INTO contacts (id,name,title,company,email,phone,linkedin,category,status,last_meeting,next_meeting,notes,city)
-         VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13)`,
+         VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13)
+         ON CONFLICT (id) DO UPDATE SET
+           name=$2,title=$3,company=$4,email=$5,phone=$6,linkedin=$7,
+           category=$8,status=$9,last_meeting=$10,next_meeting=$11,notes=$12,city=$13`,
         [c.id,c.name,c.title||null,c.company,c.email,c.phone,c.linkedin,c.category,c.status,c.lastMeeting,c.nextMeeting,c.notes,c.city||null]
       );
     }
@@ -79,7 +113,6 @@ app.post('/api/contacts', async (req, res) => {
 });
 
 const PORT = process.env.PORT || 3000;
-
 
 // Font proxy for Roughwell (served from flow.life CDN, no CORS headers)
 app.get('/fonts/roughwell.woff2', async (req, res) => {
