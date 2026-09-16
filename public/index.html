@@ -724,13 +724,19 @@ async function loadContacts() {
   render();
 }
 
-async function saveContacts() {
+async function saveContact_api(contact) {
   try {
-    await fetch(API_BASE + '/contacts', {
+    await fetch(API_BASE + '/contacts/' + contact.id, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(contacts)
+      body: JSON.stringify(contact)
     });
+  } catch(e) {}
+}
+
+async function deleteContact_api(id) {
+  try {
+    await fetch(API_BASE + '/contacts/' + id, { method: 'DELETE' });
   } catch(e) {}
 }
 
@@ -972,7 +978,8 @@ function saveContact(e) {
     data.id = 'c' + Date.now() + Math.random().toString(36).slice(2,6);
     contacts.unshift(data);
   }
-  saveContacts();
+  const saved = editingId ? contacts.find(x => x.id === editingId) : contacts[0];
+  if (saved) saveContact_api(saved);
   closeModal('modalOverlay');
   render();
 }
@@ -983,8 +990,8 @@ function openDelete(id) {
   document.getElementById('confirmOverlay').classList.add('open');
 }
 function confirmDelete() {
+  deleteContact_api(deleteId);
   contacts = contacts.filter(x => x.id !== deleteId);
-  saveContacts();
   closeModal('confirmOverlay');
   deleteId = null;
   render();
