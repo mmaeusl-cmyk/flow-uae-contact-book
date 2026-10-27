@@ -519,6 +519,19 @@
   .btn, button {
     font-family: 'Inter', sans-serif;
   }
+  .export-btn {
+    background: none;
+    color: var(--text-secondary);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 8px 14px;
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    font-family: inherit;
+    transition: background .12s, color .12s;
+  }
+  .export-btn:hover { background: #f3f4f6; color: var(--text); }
 </style>
 </head>
 <body>
@@ -566,6 +579,7 @@
 <div class="table-header">
   <span class="table-count" id="tableCount">0 contacts</span>
   <button class="add-btn" onclick="openAdd()">+ Add Contact</button>
+  <button class="export-btn" onclick="exportCSV()">&#11015; Export CSV</button>
 </div>
 
 <!-- Table -->
@@ -1004,6 +1018,26 @@ document.addEventListener('keydown', e => {
     closeModal('confirmOverlay');
   }
 });
+
+// ── Export CSV ──
+function exportCSV() {
+  const headers = ['Name','Title','Company','Category','City','Email','Phone','LinkedIn','Stage','Last Meeting','Next Meeting','Notes'];
+  const rows = contacts.map(c => [
+    c.name, c.title, c.company, c.category, c.city,
+    c.email, c.phone, c.linkedin, c.status,
+    c.lastMeeting, c.nextMeeting, c.notes
+  ].map(v => '"' + (v || '').replace(/"/g, '""') + '"'));
+  const csv = [headers.map(h => '"' + h + '"').join(','), ...rows.map(r => r.join(','))].join('\n');
+  const blob = new Blob([csv], { type: 'text/csv' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = 'MENA_Contacts_' + new Date().toISOString().split('T')[0] + '.csv';
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+}
 
 // ── Init ──
 loadContacts();
